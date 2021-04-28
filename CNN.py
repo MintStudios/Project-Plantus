@@ -18,6 +18,7 @@ import pickle
 x = []
 y = []
 
+# Define function for loadinh up all data for the images
 def train_data_gen(DIR, ID):
     for img in os.listdir(DIR)[:750]:
         try:
@@ -29,11 +30,11 @@ def train_data_gen(DIR, ID):
                 y.append(ID)
         except:
             None
-#--
+# Creates nice progress bar when reading images
 for DIR in tqdm(os.listdir('../input/plantvillage-dataset/color/')):
     train_data_gen('../input/plantvillage-dataset/color/' + DIR, DIR)
-#--
 
+# Encode labers and set vars
 print('reached label encoder')
 le = LabelEncoder()
 y = le.fit_transform(y)
@@ -43,17 +44,15 @@ x = np.array(x)
 y = to_categorical(y, 38)
 
 
-#NUM_CLASSES = 38
-
-
 x_train,x_val,y_train,y_val = tts(x, y, test_size = 0.30, shuffle=True)
 
+# Delete huge variables for memory management
 del x
-gc.collect()
 del y
 gc.collect()
 
 print('datagen')
+# Data generator to create more images
 datagen = ImageDataGenerator(
     rescale=1.0/255.0,
     zoom_range = 0.1,
@@ -64,9 +63,8 @@ datagen = ImageDataGenerator(
     height_shift_range = 0.1,
 )
 
-#gc.collect()
-print('datagen_fit')
-#datagen.fit(x_train)
+
+# Create generator for goal variables
 valgen = ImageDataGenerator(
     rescale=1.0/255.0
 )
@@ -95,5 +93,6 @@ model.compile(loss='categorical_crossentropy', optimizer=SGD(lr=0.01, nesterov=T
 print('Model fit')
 model.fit_generator(datagen.flow(x_train,y_train,batch_size=8, shuffle=True), epochs=30, shuffle=True, steps_per_epoch=x_train.shape[0]//8, validation_data=valgen.flow(x_val,y_val,batch_size=8, shuffle=True), verbose=2)
 
+# After training, save the model in a Keras model format. (HDF5)
 model.save('plantus_model.h5')
 
