@@ -90,26 +90,6 @@ model = Sequential()
 model = load_model('../input/project-plantus/plantus_model.h5')
 print(CLASSES[model.predict_classes([x])[0]-1], "or", CLASSES[model.predict_classes([x])[0]], '(', model.predict_classes([x]), ')')], CLASSES[16])
 
-# serialize model to JSON
-model_json = model.to_json()
-with open("model.json", "w") as json_file:
-    json_file.write(model_json)
-# serialize weights to HDF5
-model.save_weights('model_weights.h5')
- 
-# later...
-
-# load json and create model
-json_file = open('model.json', 'r')
-loaded_model_json = json_file.read()
-json_file.close()
-loaded_model = model_from_json(loaded_model_json)
-# load weights into new model
-loaded_model.load_weights("model_weights.h5")
-
-
-
-
 # Convert the model.
 converter = tf.lite.TFLiteConverter.from_keras_model(model)
 tflite_model = converter.convert()
